@@ -1,124 +1,129 @@
--- // S34l GUI + Jumpscare Edition (Require Version) \\
--- Just do: require(scriptId).Load("YourNameHere")
+-- S34l GUI + Jumpscare Edition (GitHub Version)
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local Lighting = game:GetService("Lighting")
+local UserInputService = game:GetService("UserInputService")
 
-local module = {}
+local player = Players.LocalPlayer
 
-function module.Load(ownerName)
-	local Players = game:GetService("Players")
-	local Workspace = game:GetService("Workspace")
-	local Lighting = game:GetService("Lighting")
-	local UserInputService = game:GetService("UserInputService")
-	local RunService = game:GetService("RunService")
+local gui = Instance.new("ScreenGui")
+gui.Name = "S34lGui"
+gui.ResetOnSpawn = false
 
-	local player = Players:FindFirstChild(ownerName)
-	if not player then return end
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0.8, 0, 0.7, 0)
+frame.Position = UDim2.new(0.1, 0, 0.15, 0)
+frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+frame.BorderSizePixel = 3
+frame.Parent = gui
 
-	local gui = Instance.new("ScreenGui")
-	gui.Name = "S34lGui"
-	gui.ResetOnSpawn = false
+-- Draggable
+local dragging, dragStart, startPos
+frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+		
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
 
-	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(0.8, 0, 0.7, 0)
-	frame.Position = UDim2.new(0.1, 0, 0.15, 0)
-	frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-	frame.BorderSizePixel = 3
-	frame.Parent = gui
-
-	-- Draggable
-	local dragging, dragInput, dragStart, startPos
-	local function update(input)
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
 		local delta = input.Position - dragStart
 		frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 	end
+end)
 
-	frame.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = true
-			dragStart = input.Position
-			startPos = frame.Position
+local function btn(name, text, pos)
+	local b = Instance.new("TextButton")
+	b.Name = name
+	b.Size = UDim2.new(0.45, 0, 0.15, 0)
+	b.Position = pos
+	b.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+	b.BorderSizePixel = 2
+	b.Text = text
+	b.TextColor3 = Color3.new(1,1,1)
+	b.TextScaled = true
+	b.Font = Enum.Font.GothamBold
+	b.Parent = frame
+	return b
+end
 
-			input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragging = false
-				end
-			end)
+local Sealify      = btn("Sealify",      "Sealify",        UDim2.new(0.05, 0, 0.08, 0))
+local Unanchor     = btn("Unanchor",     "Unanchor All",   UDim2.new(0.50, 0, 0.08, 0))
+local KickSkids    = btn("KickSkids",    "Kick All Skids", UDim2.new(0.05, 0, 0.28, 0))
+local KillAll      = btn("KillAll",      "Kill All",       UDim2.new(0.50, 0, 0.28, 0))
+local Jumpscare    = btn("Jumpscare",    "Jumpscare All",  UDim2.new(0.05, 0, 0.48, 0))
+local Close        = btn("Close",        "Close GUI",      UDim2.new(0.50, 0, 0.48, 0))
+
+gui.Parent = player:WaitForChild("PlayerGui")
+
+-- Functions
+Sealify.MouseButton1Click:Connect(function()
+	local id = "rbxassetid://96982772730126"
+	local sky = Instance.new("Sky", Lighting)
+	sky.SkyboxBk = sky.SkyboxDn = sky.SkyboxFt = sky.SkyboxLf = sky.SkyboxRt = sky.SkyboxUp = id
+
+	for _, v in ipairs(Workspace:GetDescendants()) do
+		if v:IsA("BasePart") then
+			local d = Instance.new("Decal", v)
+			d.Texture = id
+			d.Face = Enum.NormalId.Top
 		end
-	end)
-
-	frame.InputChanged:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-			dragInput = input
-		end
-	end)
-
-	UserInputService.InputChanged:Connect(function(input)
-		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-			update(input)
-		end
-	end)
-
-	local function makeButton(name, text, pos)
-		local btn = Instance.new("TextButton")
-		btn.Name = name
-		btn.Size = UDim2.new(0.45, 0, 0.15, 0)
-		btn.Position = pos
-		btn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-		btn.BorderSizePixel = 2
-		btn.Text = text
-		btn.TextColor3 = Color3.new(1, 1, 1)
-		btn.TextScaled = true
-		btn.Font = Enum.Font.GothamBold
-		btn.Parent = frame
-		return btn
 	end
 
-	local Sealify        = makeButton("Sealify",        "Sealify",          UDim2.new(0.05, 0, 0.08, 0))
-	local Unanchor       = makeButton("Unanchor",       "Unanchor All",     UDim2.new(0.50, 0, 0.08, 0))
-	local KickThoseSkids = makeButton("KickSkids",      "Kick All Skids",   UDim2.new(0.05, 0, 0.28, 0))
-	local KillAll        = makeButton("KillAll",        "Kill All",         UDim2.new(0.50, 0, 0.28, 0))
-	local JumpscareAll    = makeButton("JumpscareAll",   "Jumpscare All",    UDim2.new(0.05, 0, 0.48, 0))
-	local CloseBtn       = makeButton("Close",          "Close GUI",        UDim2.new(0.50, 0, 0.48, 0))
+	local s = Instance.new("Sound", gui)
+	s.SoundId = "rbxassetid://128186476216166"
+	s.Volume = 10
+	s.Looped = true
+	s:Play()
+end)
 
-	gui.Parent = player:WaitForChild("PlayerGui")
+Unanchor.MouseButton1Click:Connect(function()
+	for _, v in ipairs(Workspace:GetDescendants()) do
+		if v:IsA("BasePart") then v.Anchored = false end
+	end
+end)
 
-	-- === FUNCTIONS ===
+KickSkids.MouseButton1Click:Connect(function()
+	for _, p in ipairs(Players:GetPlayers()) do
+		p:Kick("Get S34led skid!")
+	end
+end)
 
-	Sealify.MouseButton1Click:Connect(function()
-		local sky = Instance.new("Sky", Lighting)
-		local id = "rbxassetid://96982772730126"
-		sky.SkyboxBk = id; sky.SkyboxDn = id; sky.SkyboxFt = id
-		sky.SkyboxLf = id; sky.SkyboxRt = id; sky.SkyboxUp = id
-
-		for _, part in ipairs(Workspace:GetDescendants()) do
-			if part:IsA("BasePart") then
-				local decal = Instance.new("Decal", part)
-				decal.Texture = id
-				decal.Face = Enum.NormalId.Top
-			end
+KillAll.MouseButton1Click:Connect(function()
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p.Character and p.Character:FindFirstChild("Humanoid") then
+			p.Character.Humanoid.Health = 0
 		end
+	end
+end)
 
-		local sound = Instance.new("Sound", gui)
-		sound.SoundId = "rbxassetid://128186476216166"
-		sound.Looped = true
-		sound.Volume = 10
-		sound:Play()
-	end)
-
-	Unanchor.MouseButton1Click:Connect(function()
-		for _, obj in ipairs(Workspace:GetDescendants()) do
-			if obj:IsA("BasePart") then
-				obj.Anchored = false
-			end
+Jumpscare.MouseButton1Click:Connect(function()
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p ~= player then
+			local js = Instance.new("ScreenGui", p:WaitForChild("PlayerGui"))
+			js.Name = "Jumpscare"
+			local img = Instance.new("ImageLabel", js)
+			img.Size = UDim2.new(1,0,1,0)
+			img.BackgroundTransparency = 1
+			img.Image = "rbxassetid://96982772730126"
+			local snd = Instance.new("Sound", js)
+			snd.SoundId = "rbxassetid://7113216707"
+			snd.Volume = 10
+			snd:Play()
+			wait(0.6)
+			js:Destroy()
 		end
-	end)
+	end
+end)
 
-	KickThoseSkids.MouseButton1Click:Connect(function()
-		for _, plr in ipairs(Players:GetPlayers()) do
-			plr:Kick("Get S34led skid!")
-		end
-	end)
-
-	KillAll.MouseButton1Click:Connect(function()
-		for _, plr in ipairs(Players:GetPlayers()) do
-			if plr.Character and plr.Character:FindFirstChild("Humanoid") then
-				plr.Character.Humanoid.Health = 0
+Close.MouseButton1Click:Connect(function()
+	gui:Destroy()
+end)
