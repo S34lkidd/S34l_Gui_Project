@@ -1,4 +1,4 @@
-loadstring([[
+
     local Players = game:GetService("Players")
     local Workspace = game:GetService("Workspace")
     local Lighting = game:GetService("Lighting")
@@ -119,4 +119,3 @@ loadstring([[
             end
         end
     end)
-]])()
